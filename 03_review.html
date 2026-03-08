@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>総評シート | otome sheet</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body { padding-bottom: 80px; }
+.page-wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px; }
+.page-header { text-align: center; margin-bottom: 20px; }
+.page-header h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+.page-header p { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.card { margin-bottom: 14px; }
+
+.optional-badge {
+  display: inline-block;
+  font-size: 0.65rem;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 1px 6px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* 攻略順トグル */
+.route-toggle-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.route-toggle-label { font-size: 0.8rem; color: var(--muted); }
+
+/* キャラ感想リスト */
+.chara-entry {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: start;
+}
+
+/* 攻略順表示 */
+.route-display {
+  font-size: 0.85rem;
+  color: var(--ink);
+  background: var(--pale, #f9f0f5);
+  border: 1.5px dashed var(--line);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-height: 36px;
+  word-break: break-all;
+}
+
+/* ポイントリスト */
+.point-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.point-bullet {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+/* プレビュー */
+#preview-canvas { display: none; }
+.preview-img { max-width: 100%; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.12); border: 2px solid var(--line); display: none; margin-top: 16px; }
+.dl-btn-wrap { margin-top: 14px; display: none; }
+
+/* 文字数カウント */
+.char-count {
+  text-align: right;
+  font-size: 0.68rem;
+  color: var(--muted);
+  margin-top: 3px;
+}
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <a href="index.html" class="logo">✨ otome sheet</a>
+  <a href="01_before.html">プレイ前</a>
+  <a href="02_chara.html">個別キャラ</a>
+  <a href="03_review.html" class="current">総評</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1>✨ 総評シート</h1>
+    <p>ゲーム全体の感想をまとめよう！</p>
+  </div>
+
+  <!-- ゲームタイトル -->
+  <div class="card">
+    <div class="card-title">♡ 基本情報</div>
+    <div style="margin-bottom:12px;">
+      <label>ゲームタイトル</label>
+      <input type="text" id="game-title" placeholder="タイトルを入力" maxlength="20" oninput="countChars(this,'cnt-game-title')">
+      <div class="char-count"><span id="cnt-game-title">0</span>/20文字</div>
+    </div>
+    <label>メイン画像（任意・ゲームや推しの画像など）</label>
+    <p style="font-size:0.7rem;color:var(--muted);margin:3px 0 6px;">推奨：正方形（1:1）のJPG/PNG・1MB以下</p>
+    <div style="display:flex;align-items:flex-start;gap:12px;margin-top:4px;">
+      <div class="upload-area" id="review-upload" style="width:100px;height:100px;border-radius:12px;" onclick="document.getElementById('review-file').click()">
+        <div class="upload-placeholder" id="review-upload-placeholder">📷<br>画像（任意）</div>
+        <img id="review-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;">
+        <input type="file" id="review-file" accept="image/*" onchange="handleReviewImg(this)">
+      </div>
+      <button class="btn btn-outline btn-sm" id="review-img-clear-btn" style="display:none;" onclick="clearReviewImg()">✕ 削除</button>
+    </div>
+  </div>
+
+  <!-- カラー選択 -->
+  <div class="card">
+    <div class="card-title">♡ カラーテーマ</div>
+    <div class="color-palette" id="color-palette" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+  </div>
+
+  <!-- キャラ感想セクション -->
+  <div class="card">
+    <div class="card-title">
+      ♡ キャラ感想
+      <span class="optional-badge">任意・MAX7</span>
+    </div>
+    <div class="route-toggle-wrap">
+      <span class="route-toggle-label">キャラ感想を入力して攻略順に自動反映する</span>
+      <label class="toggle">
+        <input type="checkbox" id="chara-mode-toggle" onchange="toggleCharaMode(this.checked)" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+
+    <!-- キャラ感想入力モード -->
+    <div id="chara-entries-wrap">
+      <div id="chara-entries"></div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:6px;" onclick="addCharaEntry()">＋ キャラを追加</button>
+    </div>
+
+    <!-- 直接入力モード -->
+    <div id="direct-route-wrap" style="display:none;">
+      <label>攻略順（例：A→B→C）</label>
+      <input type="text" id="direct-route" placeholder="名前を入力してください">
+    </div>
+
+    <!-- 攻略順プレビュー -->
+    <div style="margin-top:10px;">
+      <label>攻略順（自動生成）</label>
+      <div class="route-display" id="route-display">—</div>
+    </div>
+  </div>
+
+  <!-- 主人公 -->
+  <div class="card">
+    <div class="card-title">♡ 主人公について<span class="optional-badge">任意</span></div>
+    <textarea id="heroine" rows="2" maxlength="80" placeholder="主人公についての感想…" oninput="countChars(this,'cnt-heroine')"></textarea>
+    <div class="char-count"><span id="cnt-heroine">0</span>/80文字</div>
+  </div>
+
+  <!-- プレイ時間 ＋ 一番刺さったエンド（横並び） -->
+  <div class="card">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <div class="card-title" style="margin-bottom:8px;">♡ プレイ総時間<span class="optional-badge">任意</span></div>
+        <select id="playtime">
+          <option value="">選択しない</option>
+          <option value="1日未満">1日未満</option>
+          <option value="2〜3日">2〜3日</option>
+          <option value="1週間">1週間</option>
+          <option value="まったりプレイ">まったりプレイ</option>
+        </select>
+      </div>
+      <div>
+        <div class="card-title" style="margin-bottom:8px;">♡ 一番刺さったエンド<span class="optional-badge">任意</span></div>
+        <input type="text" id="best-end" placeholder="例：〇〇ルート　グッドエンド" maxlength="30" oninput="countChars(this,'cnt-best-end')">
+        <div class="char-count"><span id="cnt-best-end">0</span>/30文字</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 良かったところ -->
+  <div class="card">
+    <div class="card-title">♡ 良かったところ<span class="optional-badge">任意・MAX3</span></div>
+    <div id="good-list"></div>
+    <button class="btn btn-outline btn-sm" id="good-add-btn" style="width:100%;margin-top:6px;" onclick="addPoint('good')">＋ 追加</button>
+  </div>
+
+  <!-- 好みが分かれそうポイント -->
+  <div class="card">
+    <div class="card-title">♡ 好みが分かれそうポイント<span class="optional-badge">任意・MAX3</span></div>
+    <div id="split-list"></div>
+    <button class="btn btn-outline btn-sm" id="split-add-btn" style="width:100%;margin-top:6px;" onclick="addPoint('split')">＋ 追加</button>
+  </div>
+
+  <!-- 満足度 -->
+  <div class="card">
+    <div class="card-title">♡ 満足度</div>
+    <div class="star-row"><span class="star-label">総合</span><div class="stars" id="stars-total"></div></div>
+    <div class="star-row"><span class="star-label">シナリオ</span><div class="stars" id="stars-scenario"></div></div>
+    <div class="star-row"><span class="star-label">糖度</span><div class="stars" id="stars-sugar"></div></div>
+    <div class="star-row"><span class="star-label">システム</span><div class="stars" id="stars-system"></div></div>
+    <div class="star-row" style="margin-bottom:0"><span class="star-label">BGM</span><div class="stars" id="stars-bgm"></div></div>
+  </div>
+
+  <!-- 最推し -->
+  <div class="card">
+    <div class="card-title">♡ 最終的な最推し</div>
+    <input type="text" id="best-chara" placeholder="最推しキャラ名" maxlength="30" oninput="countChars(this,'cnt-best-chara')">
+    <div class="char-count"><span id="cnt-best-chara">0</span>/30文字</div>
+  </div>
+
+  <!-- 感想 -->
+  <div class="card">
+    <div class="card-title">♡ 感想（自由記述）<span class="optional-badge">任意</span></div>
+    <textarea id="free-review" rows="5" maxlength="220" placeholder="ゲーム全体の感想を自由に…" oninput="countChars(this,'cnt-free-review')"></textarea>
+    <div class="char-count"><span id="cnt-free-review">0</span>/220文字</div>
+  </div>
+
+  <!-- 生成ボタン -->
+  <div style="margin-top:20px;">
+    <button class="btn btn-primary" style="width:100%;padding:16px;font-size:1rem;" onclick="generate()">
+      ✨ 総評シートを作成する
+    </button>
+  </div>
+
+  <canvas id="preview-canvas" width="900" height="1200"></canvas>
+  <img id="preview-img" class="preview-img">
+  <div class="dl-btn-wrap" id="dl-wrap">
+    <button class="btn btn-primary" style="width:100%;" onclick="download()">⬇️ ダウンロード</button>
+  </div>
+</div>
+
+<script>
+function countChars(el, counterId) {
+  document.getElementById(counterId).textContent = el.value.length;
+}
+
+const COLORS = [
+  { name:'pink',    gc:'#ffb7c5', gcs:'#ff85a2', gbg:'#fff0f4' },
+  { name:'red',     gc:'#ff8080', gcs:'#e63c3c', gbg:'#fff0f0' },
+  { name:'orange',  gc:'#ffb37a', gcs:'#f07830', gbg:'#fff5ee' },
+  { name:'yellow',  gc:'#ffe066', gcs:'#e6c000', gbg:'#fffbee' },
+  { name:'lime',    gc:'#b8f07a', gcs:'#70c020', gbg:'#f5ffee' },
+  { name:'green',   gc:'#7ad4a0', gcs:'#30a060', gbg:'#eefff4' },
+  { name:'mint',    gc:'#7ae8d4', gcs:'#20b090', gbg:'#eefffa' },
+  { name:'sky',     gc:'#80d4ff', gcs:'#30a0e0', gbg:'#eef8ff' },
+  { name:'blue',    gc:'#80a8ff', gcs:'#3060e0', gbg:'#eef2ff' },
+  { name:'lavender',gc:'#c0a8ff', gcs:'#7050e0', gbg:'#f4f0ff' },
+  { name:'purple',  gc:'#d480ff', gcs:'#9030d0', gbg:'#f9eeff' },
+  { name:'magenta', gc:'#ff80d4', gcs:'#d030a0', gbg:'#ffeeff' },
+  { name:'brown',   gc:'#d4a870', gcs:'#a07030', gbg:'#fdf5ec' },
+  { name:'gold',    gc:'#e8c44a', gcs:'#c09010', gbg:'#fffbea' },
+  { name:'gray',    gc:'#b0b0c8', gcs:'#707090', gbg:'#f4f4f8' },
+  { name:'black',   gc:'#606070', gcs:'#202030', gbg:'#f0f0f4' },
+];
+
+let selectedColor = COLORS[0];
+let charaEntries = [];
+let entryCount = 0;
+const starRatings = { total:0, scenario:0, sugar:0, system:0, bgm:0 };
+const pointData = { good: [], split: [] };
+let reviewImgData = null;
+
+// 総評画像アップロード
+function handleReviewImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    reviewImgData = e.target.result;
+    document.getElementById('review-preview-img').src = e.target.result;
+    document.getElementById('review-preview-img').style.display = 'block';
+    document.getElementById('review-upload-placeholder').style.display = 'none';
+    document.getElementById('review-img-clear-btn').style.display = 'inline-flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearReviewImg() {
+  reviewImgData = null;
+  document.getElementById('review-preview-img').style.display = 'none';
+  document.getElementById('review-upload-placeholder').style.display = 'flex';
+  document.getElementById('review-img-clear-btn').style.display = 'none';
+  document.getElementById('review-file').value = '';
+}
+
+// ポイント追加機能（MAX3）
+function addPoint(type) {
+  if (pointData[type].length >= 3) return;
+  pointData[type].push('');
+  renderPoints(type);
+}
+
+function removePoint(type, idx) {
+  pointData[type].splice(idx, 1);
+  renderPoints(type);
+}
+
+function renderPoints(type) {
+  const list = document.getElementById(`${type}-list`);
+  const addBtn = document.getElementById(`${type}-add-btn`);
+  const isGood = type === 'good';
+  list.innerHTML = '';
+  pointData[type].forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'point-item';
+    row.style.marginBottom = '8px';
+    row.innerHTML = `
+      <div class="point-bullet" style="${isGood ? '' : 'background:#f5e4e4;color:#c06060;'}">${isGood ? i+1 : '△'}</div>
+      <div style="flex:1;">
+        <input type="text" value="${val}" placeholder="${isGood ? `良かった点${i+1}` : `ポイント${i+1}`}" maxlength="30" oninput="pointData['${type}'][${i}]=this.value;document.getElementById('cnt-${type}-${i}').textContent=this.value.length" style="width:100%;">
+        <div class="char-count"><span id="cnt-${type}-${i}">${val.length}</span>/30文字</div>
+      </div>
+      <button onclick="removePoint('${type}',${i})" style="background:none;border:none;font-size:1rem;cursor:pointer;color:#b0a0b0;padding:0 4px;flex-shrink:0;align-self:flex-start;margin-top:6px;">✕</button>
+    `;
+    list.appendChild(row);
+  });
+  addBtn.style.display = pointData[type].length >= 3 ? 'none' : 'block';
+}
+
+// カラーパレット
+const palette = document.getElementById('color-palette');
+COLORS.forEach(col => {
+  const d = document.createElement('div');
+  d.className = 'color-dot' + (col.name === 'pink' ? ' active' : '');
+  d.style.cssText = `background:${col.gc};width:22px;height:22px;flex-shrink:0;`;
+  d.onclick = () => {
+    document.querySelectorAll('#color-palette .color-dot').forEach(x => x.classList.remove('active'));
+    d.classList.add('active');
+    selectedColor = col;
+  };
+  palette.appendChild(d);
+});
+
+// 星評価
+['total','scenario','sugar','system','bgm'].forEach(key => {
+  const wrap = document.getElementById(`stars-${key}`);
+  for (let i = 1; i <= 5; i++) {
+    const s = document.createElement('span');
+    s.className = 'star';
+    s.textContent = '★';
+    s.dataset.val = i;
+    s.onclick = () => {
+      starRatings[key] = i;
+      updateStars(key);
+    };
+    s.onmouseover = () => highlightStars(key, i);
+    s.onmouseout = () => updateStars(key);
+    wrap.appendChild(s);
+  }
+});
+
+function updateStars(key) {
+  document.querySelectorAll(`#stars-${key} .star`).forEach(s => {
+    s.classList.toggle('lit', parseInt(s.dataset.val) <= starRatings[key]);
+  });
+}
+
+function highlightStars(key, val) {
+  document.querySelectorAll(`#stars-${key} .star`).forEach(s => {
+    s.classList.toggle('lit', parseInt(s.dataset.val) <= val);
+  });
+}
+
+// キャラモードトグル
+function toggleCharaMode(on) {
+  document.getElementById('chara-entries-wrap').style.display = on ? 'block' : 'none';
+  document.getElementById('direct-route-wrap').style.display = on ? 'none' : 'block';
+  updateRouteDisplay();
+}
+
+// キャラエントリ追加
+function addCharaEntry() {
+  if (charaEntries.length >= 7) { alert('キャラは最大7名までです！'); return; }
+  entryCount++;
+  const id = entryCount;
+  charaEntries.push({ id, name:'', kansou:'' });
+  renderCharaEntries();
+}
+
+function removeCharaEntry(id) {
+  charaEntries = charaEntries.filter(e => e.id !== id);
+  renderCharaEntries();
+}
+
+function renderCharaEntries() {
+  const wrap = document.getElementById('chara-entries');
+  wrap.innerHTML = '';
+  charaEntries.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'chara-entry';
+    div.innerHTML = `
+      <div>
+        <label style="font-size:0.7rem;">キャラ名 ${i+1}</label>
+        <input type="text" value="${e.name}" placeholder="名前" maxlength="10" oninput="updateEntry(${e.id},'name',this.value);document.getElementById('cnt-chara-name-${e.id}').textContent=this.value.length">
+        <div class="char-count"><span id="cnt-chara-name-${e.id}">${e.name.length}</span>/10文字</div>
+      </div>
+      <div style="position:relative;">
+        <label style="font-size:0.7rem;">一言感想</label>
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;">
+            <input type="text" value="${e.kansou}" placeholder="一言感想（任意）" maxlength="30" oninput="updateEntry(${e.id},'kansou',this.value);document.getElementById('cnt-chara-kansou-${e.id}').textContent=this.value.length" style="width:100%;">
+            <div class="char-count"><span id="cnt-chara-kansou-${e.id}">${e.kansou.length}</span>/30文字</div>
+          </div>
+          <button onclick="removeCharaEntry(${e.id})" style="background:none;border:none;font-size:1.1rem;cursor:pointer;color:#a090a0;padding:0 4px;align-self:flex-start;margin-top:6px;">✕</button>
+        </div>
+      </div>
+    `;
+    wrap.appendChild(div);
+  });
+  updateRouteDisplay();
+  const addBtn = document.querySelector('#chara-entries-wrap > .btn');
+  if (addBtn) addBtn.style.display = charaEntries.length >= 7 ? 'none' : 'block';
+}
+
+function updateEntry(id, key, val) {
+  const e = charaEntries.find(x => x.id === id);
+  if (e) { e[key] = val; updateRouteDisplay(); }
+}
+
+function updateRouteDisplay() {
+  const el = document.getElementById('route-display');
+  const isCharaMode = document.getElementById('chara-mode-toggle').checked;
+  if (isCharaMode) {
+    const names = charaEntries.map(e => e.name).filter(n => n.trim());
+    el.textContent = names.length > 0 ? names.join(' → ') : '—';
+  } else {
+    const v = document.getElementById('direct-route').value;
+    el.textContent = v || '—';
+  }
+}
+
+document.getElementById('direct-route').addEventListener('input', updateRouteDisplay);
+
+// 初期エントリ
+addCharaEntry();
+
+// ─── 画像生成 ───
+function generate() {
+  // 必須チェック
+  const gameTitle = document.getElementById('game-title').value.trim();
+  if (!gameTitle) { alert('ゲームタイトルを入力してください！'); return; }
+
+  const oldCanvas = document.getElementById('preview-canvas');
+  const newCanvas = document.createElement('canvas');
+  newCanvas.id = 'preview-canvas';
+  newCanvas.width = 900;
+  newCanvas.height = 1600;
+  newCanvas.style.display = 'none';
+  oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+  const ctx = newCanvas.getContext('2d', { willReadFrequently: true });
+  const W = 900, H = 1600;
+  const col = selectedColor;
+
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = col.gbg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 格子
+  ctx.strokeStyle = col.gc + '55';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y = 0; y <= H; y += 30) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  drawDashRect(ctx, 16, 16, W-32, H-32, col.gcs, 3, 10);
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = col.gcs;
+  ctx.font = 'bold 25px "Zen Maru Gothic"';
+  ctx.fillText('♡ 総評シート', W/2, 54);
+
+  // ゲームタイトル（左寄り） ＋ プレイ総時間（右寄り）
+  const playtimeHeader = document.getElementById('playtime').value;
+  if (playtimeHeader) {
+    // タイトルは左3/4エリア中央
+    ctx.font = 'bold 32px "Zen Maru Gothic"';
+    ctx.fillStyle = '#3a2f3a';
+    ctx.textAlign = 'center';
+    ctx.fillText(gameTitle, W * 0.38, 92);
+    // プレイ時間は右エリア
+    ctx.font = 'bold 18px "Zen Maru Gothic"';
+    ctx.fillStyle = col.gcs;
+    ctx.textAlign = 'left';
+    ctx.fillText('♡ プレイ総時間', W * 0.66, 78);
+    ctx.font = '20px "Zen Maru Gothic"';
+    ctx.fillStyle = '#3a2f3a';
+    ctx.fillText(playtimeHeader, W * 0.66, 100);
+  } else {
+    ctx.font = 'bold 34px "Zen Maru Gothic"';
+    ctx.fillStyle = '#3a2f3a';
+    ctx.textAlign = 'center';
+    ctx.fillText(gameTitle, W/2, 92);
+  }
+
+  ctx.strokeStyle = col.gc; ctx.lineWidth = 1.5;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(50, 108); ctx.lineTo(W-50, 108); ctx.stroke();
+  ctx.setLineDash([]);
+
+  const drawContent = () => {
+    let y = 124;
+    const lx = 50;
+    const maxW = W - 100;
+
+    // 画像＋満足度の横並びセクション
+    if (reviewImgData) {
+      const imgSize = 240;
+      const imgX = 50, imgY = y;
+      const starX = imgX + imgSize + 24;
+      const starMaxW = W - starX - 50;
+
+      const imgObj = new Image();
+      imgObj.crossOrigin = 'anonymous';
+      imgObj.onload = () => {
+        // 画像描画（正方形）
+        ctx.save();
+        ctx.beginPath();
+        roundRect(ctx, imgX, imgY, imgSize, imgSize, 14);
+        ctx.clip();
+        const scale = Math.max(imgSize/imgObj.width, imgSize/imgObj.height);
+        const dw = imgObj.width*scale, dh = imgObj.height*scale;
+        ctx.drawImage(imgObj, imgX+(imgSize-dw)/2, imgY+(imgSize-dh)/2, dw, dh);
+        ctx.restore();
+        ctx.strokeStyle = col.gcs; ctx.lineWidth = 2;
+        ctx.setLineDash([6,4]);
+        roundRect(ctx, imgX, imgY, imgSize, imgSize, 14); ctx.stroke();
+        ctx.setLineDash([]);
+
+        // 右側エリアを左右2列に分割：左＝満足度、右＝攻略順
+        const rightAreaX = starX;
+        const rightAreaW = W - starX - 50;
+        const colMid = rightAreaX + Math.floor(rightAreaW / 2) + 10;
+
+        // ── 左列：満足度 ──
+        const starFont2 = '18px "Zen Maru Gothic"';
+        ctx.font = starFont2;
+        const labelMaxW2 = ctx.measureText('シナリオ').width + 14;
+        let sy = imgY + 4;
+        drawSectionLabel(ctx, '満足度', rightAreaX, sy, col.gcs); sy += 28;
+        const starKeys = [
+          { key:'total', label:'総合' }, { key:'scenario', label:'シナリオ' },
+          { key:'sugar', label:'糖度' }, { key:'system', label:'システム' }, { key:'bgm', label:'BGM' },
+        ];
+        starKeys.forEach(sk => {
+          ctx.textAlign = 'left';
+          ctx.font = starFont2;
+          ctx.fillStyle = '#8a7a8a';
+          ctx.fillText(sk.label, rightAreaX, sy);
+          const filled = '★'.repeat(starRatings[sk.key]);
+          const empty = '☆'.repeat(5 - starRatings[sk.key]);
+          ctx.fillStyle = '#f7c948';
+          ctx.fillText(filled, rightAreaX + labelMaxW2, sy);
+          ctx.fillStyle = '#d0c0d0';
+          ctx.fillText(empty, rightAreaX + labelMaxW2 + ctx.measureText(filled).width, sy);
+          sy += 26;
+        });
+
+        // ── 右列：攻略順（満足度と同じY位置からスタート） ──
+        const isCharaMode2 = document.getElementById('chara-mode-toggle').checked;
+        let routeStr2 = isCharaMode2
+          ? charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ')
+          : document.getElementById('direct-route').value;
+        if (routeStr2) {
+          let ry = imgY + 4;
+          drawSectionLabel(ctx, '攻略順', colMid, ry, col.gcs); ry += 28;
+          ctx.textAlign = 'left';
+          ctx.font = '18px "Zen Maru Gothic"';
+          ctx.fillStyle = '#4a3f4a';
+          const routeW2 = W - colMid - 50;
+          const routeLines2 = wrapText(ctx, routeStr2, routeW2);
+          routeLines2.forEach(line => { ctx.fillText(line, colMid, ry); ry += 24; });
+          sy = Math.max(sy, ry);
+        }
+
+        const afterY = Math.max(imgY + imgSize + 16, sy + 8);
+        drawRestContent(ctx, W, H, col, afterY, true, true);
+      };
+      imgObj.onerror = () => drawRestContent(ctx, W, H, col, y, false, false);
+      imgObj.src = reviewImgData;
+      return;
+    }
+    drawRestContent(ctx, W, H, col, y, false);
+  };
+  drawContent();
+}
+
+function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false) {
+  let y = startY;
+  const lx = 50;
+  const maxW = W - 100;
+
+  // 攻略順テキストを取得（後で満足度右横に使う）
+  const isCharaMode = document.getElementById('chara-mode-toggle').checked;
+  let routeStr = '';
+  if (isCharaMode) {
+    routeStr = charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ');
+  } else {
+    routeStr = document.getElementById('direct-route').value;
+  }
+
+  // プレイ総時間はヘッダーに表示済み・一番刺さったエンドは満足度下に表示
+  // （skipTimeEnd は後方互換のため引数として残す）
+
+  // キャラ感想（名前＋一言感想を折り返し対応）
+  const hasKansou = isCharaMode && charaEntries.some(e => e.name);
+  if (hasKansou) {
+    drawSectionLabel(ctx, 'キャラ感想', lx, y, col.gcs);
+    y += 28;
+    const nameFont = 'bold 20px "Zen Maru Gothic"';
+    const kansouFont = '18px "Zen Maru Gothic"';
+    charaEntries.filter(e => e.name).forEach(e => {
+      ctx.textAlign = 'left';
+      ctx.font = nameFont;
+      ctx.fillStyle = col.gcs;
+      const nameText = e.name;
+      ctx.fillText(nameText, lx, y);
+      const nameW = ctx.measureText(nameText).width;
+      if (e.kansou) {
+        ctx.font = kansouFont;
+        ctx.fillStyle = '#4a3f4a';
+        const sep = '：';
+        const sepW = ctx.measureText(sep).width;
+        const kansouX = lx + nameW + 4;
+        const kansouMaxW = maxW - nameW - sepW - 4;
+        ctx.fillText(sep, lx + nameW + 4, y);
+        const kansouLines = wrapText(ctx, e.kansou, kansouMaxW);
+        kansouLines.forEach((line, li) => {
+          ctx.fillText(line, kansouX + sepW, y + li * 24);
+        });
+        y += Math.max(28, kansouLines.length * 24);
+      } else {
+        y += 28;
+      }
+    });
+    y += 10;
+  }
+
+  // 主人公
+  const heroine = document.getElementById('heroine').value;
+  if (heroine) {
+    y = drawBlock(ctx, '主人公について', heroine, lx, y, maxW, col, false);
+    y += 14;
+  }
+
+  // 良かったところ
+  const goods = pointData.good.filter(v => v.trim());
+  if (goods.length > 0) {
+    drawSectionLabel(ctx, '良かったところ', lx, y, col.gcs);
+    y += 28;
+    goods.forEach((g) => {
+      ctx.fillStyle = col.gc;
+      ctx.beginPath(); ctx.arc(lx + 9, y - 6, 8, 0, Math.PI*2); ctx.fill();
+      ctx.textAlign = 'left';
+      ctx.font = '20px "Zen Maru Gothic"';
+      ctx.fillStyle = '#3a2f3a';
+      ctx.fillText(g, lx + 26, y);
+      y += 28;
+    });
+    y += 10;
+  }
+
+  // 好みが分かれそう
+  const splits = pointData.split.filter(v => v.trim());
+  if (splits.length > 0) {
+    drawSectionLabel(ctx, '好みが分かれそうポイント', lx, y, col.gcs);
+    y += 28;
+    splits.forEach(s => {
+      ctx.fillStyle = col.gcs;
+      ctx.font = 'bold 20px "Zen Maru Gothic"';
+      ctx.textAlign = 'left';
+      ctx.fillText('△', lx, y);
+      ctx.font = '20px "Zen Maru Gothic"';
+      ctx.fillStyle = '#3a2f3a';
+      ctx.fillText(s, lx + 26, y);
+      y += 28;
+    });
+    y += 10;
+  }
+
+  // 満足度（画像なし時）＋右横に攻略順
+  if (!skipStars) {
+    const starKeys = [
+      { key:'total', label:'総合' }, { key:'scenario', label:'シナリオ' },
+      { key:'sugar', label:'糖度' }, { key:'system', label:'システム' }, { key:'bgm', label:'BGM' },
+    ];
+    const starFont = '20px "Zen Maru Gothic"';
+    // ラベル幅を実測：「シナリオ」が最長なので事前計測
+    ctx.font = starFont;
+    const labelMaxW = ctx.measureText('シナリオ').width + 16;
+    const starBlockX = lx;
+    const starBlockW = labelMaxW + 5 * 24 + 30;
+    drawSectionLabel(ctx, '満足度', starBlockX, y, col.gcs);
+    let sy = y + 28;
+    starKeys.forEach(sk => {
+      ctx.textAlign = 'left';
+      ctx.font = starFont;
+      ctx.fillStyle = '#8a7a8a';
+      ctx.fillText(sk.label, starBlockX, sy);
+      const filled = '★'.repeat(starRatings[sk.key]);
+      const empty = '☆'.repeat(5 - starRatings[sk.key]);
+      ctx.fillStyle = '#f7c948';
+      ctx.fillText(filled, starBlockX + labelMaxW, sy);
+      ctx.fillStyle = '#d0c0d0';
+      ctx.fillText(empty, starBlockX + labelMaxW + ctx.measureText(filled).width, sy);
+      sy += 30;
+    });
+
+    // 攻略順（右側）
+    if (routeStr) {
+      const routeX = lx + starBlockW + 20;
+      const routeW = W - routeX - 50;
+      drawSectionLabel(ctx, '攻略順', routeX, y, col.gcs);
+      let ry = y + 28;
+      ctx.textAlign = 'left';
+      ctx.font = '20px "Zen Maru Gothic"';
+      ctx.fillStyle = '#4a3f4a';
+      const routeLines = wrapText(ctx, routeStr, routeW);
+      routeLines.forEach(line => { ctx.fillText(line, routeX, ry); ry += 26; });
+      sy = Math.max(sy, ry);
+    }
+
+    y = sy + 12;
+
+    // ③一番刺さったエンドを満足度・攻略順の下に
+    const bestEndBelow = document.getElementById('best-end').value;
+    if (bestEndBelow) {
+      y = drawBlock(ctx, '一番刺さったエンド', lx, y, maxW, col, false);
+      y += 14;
+    }
+  }
+
+  // 最推し帯
+  const bestChara = document.getElementById('best-chara').value;
+  if (bestChara) {
+    ctx.fillStyle = col.gcs;
+    roundRect(ctx, lx, y, maxW, 50, 14);
+    ctx.fill();
+    ctx.fillStyle = col.gbg;
+    roundRect(ctx, lx + 4, y + 4, maxW - 8, 42, 10);
+    ctx.fill();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = col.gcs;
+    ctx.font = 'bold 22px "Zen Maru Gothic"';
+    ctx.fillText(`♡ 最推し：${bestChara} ♡`, W/2, y + 32);
+    y += 64;
+  }
+
+  // 感想
+  const freeReview = document.getElementById('free-review').value;
+  if (freeReview) {
+    drawSectionLabel(ctx, '感想', lx, y, col.gcs);
+    y += 24;
+    y = drawTextBlock(ctx, freeReview, lx, y, maxW, 22, '#4a3f4a');
+  }
+
+  // フッター
+  ctx.textAlign = 'center';
+  ctx.fillStyle = col.gc;
+  ctx.font = '13px "Zen Maru Gothic"';
+  ctx.fillText('♡ otome sheet ♡', W/2, H - 26);
+
+  showResult();
+}
+
+function drawBlock(ctx, label, text, x, y, maxW, col, isHighlight) {
+  drawSectionLabel(ctx, label, x, y, col.gcs);
+  y += 28;
+  ctx.textAlign = 'left';
+  ctx.font = '20px "Zen Maru Gothic"';
+  ctx.fillStyle = '#4a3f4a';
+  const lines = wrapText(ctx, text, maxW);
+  lines.forEach(line => { ctx.fillText(line, x, y); y += 26; });
+  return y;
+}
+
+function drawSectionLabel(ctx, text, x, y, color) {
+  ctx.textAlign = 'left';
+  ctx.fillStyle = color;
+  ctx.font = 'bold 22px "Zen Maru Gothic"';
+  ctx.fillText('♡ ' + text, x, y);
+}
+
+function drawTextBlock(ctx, text, x, y, maxW, lineH, color) {
+  ctx.fillStyle = color;
+  ctx.font = '20px "Zen Maru Gothic"';
+  ctx.textAlign = 'left';
+  const lines = wrapText(ctx, text, maxW);
+  lines.forEach(line => { ctx.fillText(line, x, y); y += lineH + 4; });
+  return y;
+}
+
+function showResult() {
+  const canvas = document.getElementById('preview-canvas');
+  const img = document.getElementById('preview-img');
+  try {
+    img.src = canvas.toDataURL('image/png');
+  } catch(e) {
+    alert('画像の生成に失敗しました。ブラウザの設定を確認してください。');
+    return;
+  }
+  img.style.display = 'block';
+  document.getElementById('dl-wrap').style.display = 'block';
+  img.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function download() {
+  const canvas = document.getElementById('preview-canvas');
+  const a = document.createElement('a');
+  const title = document.getElementById('game-title').value || 'review';
+  const d = new Date();
+  a.download = `otome_review_${title}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function roundRect(ctx, x, y, w, h, r=14) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+
+function drawDashRect(ctx, x, y, w, h, color, lw, dash) {
+  ctx.strokeStyle = color; ctx.lineWidth = lw;
+  ctx.setLineDash([dash, dash/2]);
+  roundRect(ctx, x, y, w, h, 20); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function wrapText(ctx, text, maxW) {
+  const lines = [];
+  let cur = '';
+  for (const ch of text) {
+    if (ch === '\n') { lines.push(cur); cur = ''; continue; }
+    if (ctx.measureText(cur+ch).width > maxW) { lines.push(cur); cur = ch; }
+    else cur += ch;
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+</script>
+</body>
+</html>

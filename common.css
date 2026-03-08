@@ -1,0 +1,329 @@
+@import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --font: 'Zen Maru Gothic', sans-serif;
+  --bg: #fdf6f9;
+  --white: #ffffff;
+  --ink: #4a3f4a;
+  --muted: #a090a0;
+  --line: #e8dae8;
+  --accent: #d4789a;
+  --accent-light: #f5d5e4;
+  --heart: #e891b0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font);
+  min-height: 100vh;
+}
+
+/* ── 格子カラー16色 ── */
+.grid-pink    { --gc: #ffb7c5; --gcs: #ff85a2; --gbg: #fff0f4; }
+.grid-red     { --gc: #ff8080; --gcs: #e63c3c; --gbg: #fff0f0; }
+.grid-orange  { --gc: #ffb37a; --gcs: #f07830; --gbg: #fff5ee; }
+.grid-yellow  { --gc: #ffe066; --gcs: #e6c000; --gbg: #fffbee; }
+.grid-lime    { --gc: #b8f07a; --gcs: #70c020; --gbg: #f5ffee; }
+.grid-green   { --gc: #7ad4a0; --gcs: #30a060; --gbg: #eeffF4; }
+.grid-mint    { --gc: #7ae8d4; --gcs: #20b090; --gbg: #eefffa; }
+.grid-sky     { --gc: #80d4ff; --gcs: #30a0e0; --gbg: #eef8ff; }
+.grid-blue    { --gc: #80a8ff; --gcs: #3060e0; --gbg: #eef2ff; }
+.grid-lavender{ --gc: #c0a8ff; --gcs: #7050e0; --gbg: #f4f0ff; }
+.grid-purple  { --gc: #d480ff; --gcs: #9030d0; --gbg: #f9eeff; }
+.grid-magenta { --gc: #ff80d4; --gcs: #d030a0; --gbg: #ffeeff; }
+.grid-brown   { --gc: #d4a870; --gcs: #a07030; --gbg: #fdf5ec; }
+.grid-gold    { --gc: #e8c44a; --gcs: #c09010; --gbg: #fffbea; }
+.grid-gray    { --gc: #b0b0c8; --gcs: #707090; --gbg: #f4f4f8; }
+.grid-black   { --gc: #606070; --gcs: #202030; --gbg: #f0f0f4; }
+
+/* ── ハート装飾 ── */
+.deco-heart { color: var(--heart); font-size: 0.85em; }
+
+/* ── カード共通 ── */
+.card {
+  background: rgba(255,255,255,0.92);
+  border: 2.5px dashed var(--line);
+  border-radius: 18px;
+  padding: 16px 18px;
+  position: relative;
+}
+
+.card-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ── 入力欄共通 ── */
+input[type=text], textarea, select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  font-family: var(--font);
+  font-size: 0.88rem;
+  color: var(--ink);
+  background: #fffbfd;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: none;
+}
+
+input[type=text]:focus, textarea:focus, select:focus {
+  border-color: var(--accent);
+}
+
+input[type=text]::placeholder, textarea::placeholder { color: #cfc0cf; }
+
+label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+/* ── ボタン ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 50px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+.btn:hover { transform: scale(1.03); opacity: 0.9; }
+.btn:active { transform: scale(0.97); }
+
+.btn-primary { background: var(--accent); color: white; }
+.btn-outline { background: white; color: var(--accent); border: 2px solid var(--accent); }
+.btn-sm { padding: 7px 16px; font-size: 0.78rem; }
+
+/* ── カラーパレット ── */
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.color-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+}
+
+.color-dot:hover { transform: scale(1.12); }
+.color-dot.active { border-color: var(--ink); transform: scale(1.15); }
+
+/* ── タグ ── */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  padding: 4px 12px;
+  border: 2px solid var(--line);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--muted);
+  user-select: none;
+}
+.tag:hover { border-color: var(--accent-light); color: var(--ink); }
+.tag.active { border-color: var(--accent); background: var(--accent-light); color: var(--ink); }
+
+/* ── 星評価 ── */
+.star-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.star-label { font-size: 0.78rem; color: var(--muted); width: 80px; flex-shrink: 0; }
+.stars { display: flex; gap: 4px; }
+.star {
+  font-size: 1.6rem;
+  cursor: pointer;
+  color: #e0d0e0;
+  transition: color 0.15s, transform 0.15s, text-shadow 0.15s;
+  user-select: none;
+  line-height: 1;
+}
+.star.lit {
+  color: #f7c948;
+  text-shadow: 0 0 8px rgba(247,201,72,0.6);
+  transform: scale(1.08);
+}
+.star:hover {
+  transform: scale(1.25);
+  color: #f7c948;
+  text-shadow: 0 0 10px rgba(247,201,72,0.5);
+}
+
+/* ── スライダー ── */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.slider-label { font-size: 0.75rem; color: var(--muted); width: 80px; flex-shrink: 0; }
+input[type=range] {
+  -webkit-appearance: none;
+  flex: 1;
+  height: 4px;
+  background: var(--line);
+  border-radius: 4px;
+  outline: none;
+  border: none;
+  padding: 0;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+.slider-val { font-size: 0.9rem; color: var(--accent); font-weight: 700; width: 20px; text-align: right; }
+
+/* ── 萌えハートボタン ── */
+.moe-section { text-align: center; }
+.moe-btn {
+  font-size: 2.5rem;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.1s;
+  display: inline-block;
+  line-height: 1;
+}
+.moe-btn:active { transform: scale(0.85); }
+.moe-count {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+/* ── ネタバレバッジ ── */
+.spoiler-badge {
+  display: inline-block;
+  background: #ff3c3c;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 20px;
+  letter-spacing: 0.1em;
+}
+
+/* ── アップロードエリア ── */
+.upload-area {
+  border: 2.5px dashed var(--line);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #fffbfd;
+  overflow: hidden;
+  position: relative;
+}
+.upload-area:hover { border-color: var(--accent); background: var(--accent-light); }
+.upload-area img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.upload-placeholder { font-size: 0.75rem; color: var(--muted); text-align: center; padding: 10px; }
+.upload-area input[type=file] { display: none; }
+
+/* ── セクション見出し ── */
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 14px;
+  padding-bottom: 6px;
+  border-bottom: 2px dashed var(--line);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── トグル ── */
+.toggle-wrap { display: flex; align-items: center; gap: 10px; }
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+}
+.toggle input { display: none; }
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--line);
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+.toggle input:checked ~ .toggle-track { background: var(--accent); }
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  background: white;
+  border-radius: 50%;
+  transition: left 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle input:checked ~ .toggle-thumb { left: 23px; }
+
+/* ── ページ上部ナビ ── */
+.top-nav {
+  background: white;
+  border-bottom: 2px solid var(--line);
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.top-nav .logo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-decoration: none;
+  margin-right: auto;
+}
+.top-nav a {
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 12px;
+  border-radius: 20px;
+  transition: background 0.15s;
+}
+.top-nav a:hover { background: var(--accent-light); color: var(--accent); }
+.top-nav a.current { background: var(--accent-light); color: var(--accent); font-weight: 700; }

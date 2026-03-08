@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>otome sheet ✦</title>
+<link rel="stylesheet" href="common.css">
+<style>
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+  background: var(--bg);
+}
+
+/* 背景装飾 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, #ffd6e7 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, #d6e6ff 0%, transparent 50%),
+    radial-gradient(circle at 60% 20%, #ffe0f0 0%, transparent 40%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.logo-wrap {
+  margin-bottom: 36px;
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  line-height: 1;
+}
+
+.logo-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+  letter-spacing: 0.3em;
+  margin-top: 6px;
+}
+
+.logo-deco {
+  font-size: 1.3rem;
+  margin-bottom: 6px;
+  color: var(--heart);
+  letter-spacing: 0.3em;
+}
+
+/* カード3枚 */
+.menu-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-card {
+  background: white;
+  border-radius: 22px;
+  border: 2.5px dashed var(--line);
+  padding: 22px 28px;
+  text-decoration: none;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  transition: transform 0.18s, box-shadow 0.18s, border-color 0.18s;
+  box-shadow: 0 4px 16px rgba(212,120,154,0.08);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--card-tint) 0%, transparent 60%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.menu-card:hover {
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 28px rgba(212,120,154,0.18);
+  border-color: var(--accent);
+}
+
+.menu-card .icon {
+  font-size: 2.4rem;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.menu-card .text h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 3px;
+}
+
+.menu-card .text p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.menu-card .arrow {
+  margin-left: auto;
+  font-size: 1.2rem;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.card-before { --card-tint: #fff0f6; }
+.card-chara  { --card-tint: #f0f4ff; }
+.card-review { --card-tint: #fff8f0; }
+
+.footer-note {
+  margin-top: 28px;
+  font-size: 0.7rem;
+  color: var(--muted);
+  line-height: 1.8;
+}
+
+.hearts-deco {
+  font-size: 0.9rem;
+  color: var(--heart);
+  letter-spacing: 0.3em;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo-deco">♡ ✦ ♡</div>
+    <div class="logo">otome sheet</div>
+    <div class="logo-sub">乙女ゲーム 感想カードメーカー</div>
+  </div>
+
+  <div class="hearts-deco">♡ ♡ ♡</div>
+
+  <div class="menu-cards">
+    <a href="01_before.html" class="menu-card card-before">
+      <span class="icon">♡</span>
+      <div class="text">
+        <h2>プレイ前シート</h2>
+        <p>気になるキャラの予想を記録しよう</p>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="02_chara.html" class="menu-card card-chara">
+      <span class="icon">✦</span>
+      <div class="text">
+        <h2>個別キャラシート</h2>
+        <p>攻略後の感想を記録しよう</p>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+
+    <a href="03_review.html" class="menu-card card-review">
+      <span class="icon">♡</span>
+      <div class="text">
+        <h2>総評シート</h2>
+        <p>ゲーム全体の感想・満足度をまとめよう</p>
+      </div>
+      <span class="arrow">→</span>
+    </a>
+  </div>
+
+  <p class="footer-note">
+    ♡ 各ページで入力 → 画像生成 → ダウンロードしてSNSに投稿しよう ♡
+  </p>
+</div>
+</body>
+</html>
