@@ -224,25 +224,49 @@ body { padding-bottom: 80px; }
     <div class="char-count"><span id="cnt-best-chara">0</span>/30文字</div>
   </div>
 
-  <!-- 感想 -->
+  <!-- 感想（2枚目用） -->
   <div class="card">
-    <div class="card-title">♡ 感想（自由記述）<span class="optional-badge">任意</span></div>
-    <textarea id="free-review" rows="5" maxlength="220" placeholder="ゲーム全体の感想を自由に…" oninput="countChars(this,'cnt-free-review')"></textarea>
-    <div class="char-count"><span id="cnt-free-review">0</span>/220文字</div>
+    <div class="card-title">♡ 感想（自由記述）<span class="optional-badge">任意・2枚目に使用</span></div>
+    <textarea id="free-review" rows="6" maxlength="500" placeholder="ゲーム全体の感想を自由に…（2枚目の語り場シートに入ります）" oninput="countChars(this,'cnt-free-review')"></textarea>
+    <div class="char-count"><span id="cnt-free-review">0</span>/500文字</div>
+  </div>
+
+  <!-- サイン入力 -->
+  <div class="card">
+    <div class="card-title">♡ サイン<span class="optional-badge">任意</span></div>
+    <input type="text" id="user-sign" placeholder="@あなたのXアカウント名など" maxlength="30" oninput="countChars(this,'cnt-user-sign')">
+    <div class="char-count"><span id="cnt-user-sign">0</span>/30文字</div>
+    <div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">入力すると両方の画像のフッターに表示されます</div>
   </div>
 
   <!-- 生成ボタン -->
   <div style="margin-top:20px;">
     <button class="btn btn-primary" style="width:100%;padding:16px;font-size:1rem;" onclick="generate()">
-      ✨ 総評シートを作成する
+      ✨ シートを作成する
     </button>
   </div>
 
-  <canvas id="preview-canvas" width="900" height="1200"></canvas>
-  <img id="preview-img" class="preview-img">
-  <div class="dl-btn-wrap" id="dl-wrap">
-    <button class="btn btn-primary" style="width:100%;" onclick="download()">⬇️ ダウンロード</button>
+  <canvas id="preview-canvas" width="900" height="1200" style="display:none;"></canvas>
+  <canvas id="preview-canvas2" width="900" height="1200" style="display:none;"></canvas>
+
+  <!-- 1枚目プレビュー -->
+  <div id="preview-wrap1" style="display:none;margin-top:16px;">
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:6px;">① 総評シート</div>
+    <img id="preview-img" class="preview-img">
+    <div class="dl-btn-wrap">
+      <button class="btn btn-primary" style="width:100%;" onclick="download(1)">⬇️ 1枚目をダウンロード（総評シート）</button>
+    </div>
   </div>
+
+  <!-- 2枚目プレビュー -->
+  <div id="preview-wrap2" style="display:none;margin-top:16px;">
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:6px;">② 語り場シート</div>
+    <img id="preview-img2" class="preview-img">
+    <div class="dl-btn-wrap">
+      <button class="btn btn-primary" style="width:100%;" onclick="download(2)">⬇️ 2枚目をダウンロード（語り場シート）</button>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -779,19 +803,17 @@ function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false)
     y += 64;
   }
 
-  // 感想
-  const freeReview = document.getElementById('free-review').value;
-  if (freeReview) {
-    drawSectionLabel(ctx, '感想', lx, y, col.gcs);
-    y += 24;
-    y = drawTextBlock(ctx, freeReview, lx, y, maxW, 22, '#4a3f4a');
-  }
-
-  // フッター
+  // フッター（サイン＋クレジット）
+  const userSign = document.getElementById('user-sign').value.trim();
   ctx.textAlign = 'center';
   ctx.fillStyle = col.gc;
   ctx.font = '13px "Zen Maru Gothic"';
-  ctx.fillText('♡ otome sheet ♡', W/2, H - 26);
+  const footerText = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
+  ctx.fillText(footerText, W/2, H - 28);
+  ctx.font = '11px "Zen Maru Gothic"';
+  ctx.fillStyle = col.gc + 'aa';
+  ctx.textAlign = 'right';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W - 20, H - 12);
 
   showResult();
 }
@@ -829,20 +851,104 @@ function showResult() {
   try {
     img.src = canvas.toDataURL('image/png');
   } catch(e) {
-    alert('画像の生成に失敗しました。ブラウザの設定を確認してください。');
+    alert('画像の生成に失敗しました。');
     return;
   }
   img.style.display = 'block';
-  document.getElementById('dl-wrap').style.display = 'block';
-  img.scrollIntoView({ behavior:'smooth', block:'center' });
+  document.getElementById('preview-wrap1').style.display = 'block';
+
+  // 2枚目も生成
+  generate2();
 }
 
-function download() {
-  const canvas = document.getElementById('preview-canvas');
+function generate2() {
+  const gameTitle = document.getElementById('game-title').value.trim();
+  const freeReview = document.getElementById('free-review').value;
+  const userSign = document.getElementById('user-sign').value.trim();
+  const col = selectedColor;
+  const W = 900, H = 1200;
+
+  const canvas2 = document.getElementById('preview-canvas2');
+  canvas2.width = W;
+  canvas2.height = H;
+  const ctx = canvas2.getContext('2d');
+
+  // 背景
+  ctx.fillStyle = col.gbg;
+  ctx.fillRect(0, 0, W, H);
+
+  // 格子
+  ctx.strokeStyle = col.gc + '55';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for (let y2 = 0; y2 <= H; y2 += 30) { ctx.beginPath(); ctx.moveTo(0,y2); ctx.lineTo(W,y2); ctx.stroke(); }
+
+  drawDashRect(ctx, 16, 16, W-32, H-32, col.gcs, 3, 10);
+
+  // ヘッダー
+  ctx.textAlign = 'center';
+  ctx.fillStyle = col.gcs;
+  ctx.font = 'bold 25px "Zen Maru Gothic"';
+  ctx.fillText('♡ 語り場シート', W/2, 54);
+
+  ctx.font = 'bold 32px "Zen Maru Gothic"';
+  ctx.fillStyle = '#3a2f3a';
+  ctx.fillText(gameTitle, W/2, 92);
+
+  ctx.strokeStyle = col.gc; ctx.lineWidth = 1.5;
+  ctx.setLineDash([6,4]);
+  ctx.beginPath(); ctx.moveTo(50, 108); ctx.lineTo(W-50, 108); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // 感想本文
+  let y = 140;
+  const lx = 50;
+  const maxW = W - 100;
+
+  if (freeReview) {
+    drawSectionLabel(ctx, '感想', lx, y, col.gcs);
+    y += 28;
+    ctx.textAlign = 'left';
+    ctx.font = '20px "Zen Maru Gothic"';
+    ctx.fillStyle = '#4a3f4a';
+    const lines = wrapText(ctx, freeReview, maxW);
+    lines.forEach(line => { ctx.fillText(line, lx, y); y += 28; });
+  } else {
+    // 感想未記入時のメッセージ
+    ctx.textAlign = 'center';
+    ctx.fillStyle = col.gc;
+    ctx.font = '18px "Zen Maru Gothic"';
+    ctx.fillText('～ここに語りを書いてね～', W/2, H/2);
+  }
+
+  // フッター
+  ctx.textAlign = 'center';
+  ctx.fillStyle = col.gc;
+  ctx.font = '13px "Zen Maru Gothic"';
+  const footerText2 = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
+  ctx.fillText(footerText2, W/2, H - 28);
+  ctx.font = '11px "Zen Maru Gothic"';
+  ctx.fillStyle = col.gc + 'aa';
+  ctx.textAlign = 'right';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W - 20, H - 12);
+
+  // 2枚目プレビュー表示
+  const img2 = document.getElementById('preview-img2');
+  img2.src = canvas2.toDataURL('image/png');
+  img2.style.display = 'block';
+  document.getElementById('preview-wrap2').style.display = 'block';
+  img2.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function download(num) {
+  const canvasId = num === 2 ? 'preview-canvas2' : 'preview-canvas';
+  const canvas = document.getElementById(canvasId);
   const a = document.createElement('a');
   const title = document.getElementById('game-title').value || 'review';
   const d = new Date();
-  a.download = `otome_review_${title}_${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}.png`;
+  const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const suffix = num === 2 ? '_語り場' : '';
+  a.download = `otome_review_${title}${suffix}_${dateStr}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
 }
