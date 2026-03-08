@@ -532,7 +532,7 @@ function generate() {
       titleText = titleText.slice(0, -1);
     }
     if (titleText !== gameTitle) titleText += '…';
-    ctx.fillText(titleText, 50, 92);
+    ctx.fillText(titleText, 50, 95);
 
     // プレイ時間（右寄り）
     const ptX = W - 50 - ptAreaW;
@@ -547,7 +547,7 @@ function generate() {
     ctx.font = 'bold 34px "Zen Maru Gothic"';
     ctx.fillStyle = '#3a2f3a';
     ctx.textAlign = 'center';
-    ctx.fillText(gameTitle, W/2, 92);
+    ctx.fillText(gameTitle, W/2, 95);
   }
 
   ctx.strokeStyle = col.gc; ctx.lineWidth = 1.5;
