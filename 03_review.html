@@ -460,11 +460,15 @@ function generate() {
   const newCanvas = document.createElement('canvas');
   newCanvas.id = 'preview-canvas';
   newCanvas.width = 900;
-  newCanvas.height = 1600;
+  newCanvas.height = 1200;
   newCanvas.style.display = 'none';
-  oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+  if (oldCanvas) {
+    oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
+  } else {
+    document.body.appendChild(newCanvas);
+  }
   const ctx = newCanvas.getContext('2d', { willReadFrequently: true });
-  const W = 900, H = 1600;
+  const W = 900, H = 1200;
   const col = selectedColor;
 
   ctx.clearRect(0, 0, W, H);
@@ -487,19 +491,34 @@ function generate() {
   // ゲームタイトル（左寄り） ＋ プレイ総時間（右寄り）
   const playtimeHeader = document.getElementById('playtime').value;
   if (playtimeHeader) {
-    // タイトルは左3/4エリア中央
-    ctx.font = 'bold 32px "Zen Maru Gothic"';
+    // プレイ時間エリアの幅を先に計算
+    ctx.font = '16px "Zen Maru Gothic"';
+    const ptLabelW = ctx.measureText('♡ プレイ総時間').width;
+    ctx.font = '18px "Zen Maru Gothic"';
+    const ptValW = ctx.measureText(playtimeHeader).width;
+    const ptAreaW = Math.max(ptLabelW, ptValW) + 20;
+    const titleMaxW = W - 100 - ptAreaW - 20;
+
+    // タイトル（左寄り・最大幅制限）
+    ctx.font = 'bold 30px "Zen Maru Gothic"';
     ctx.fillStyle = '#3a2f3a';
-    ctx.textAlign = 'center';
-    ctx.fillText(gameTitle, W * 0.38, 92);
-    // プレイ時間は右エリア
-    ctx.font = 'bold 18px "Zen Maru Gothic"';
+    ctx.textAlign = 'left';
+    let titleText = gameTitle;
+    while (ctx.measureText(titleText).width > titleMaxW && titleText.length > 1) {
+      titleText = titleText.slice(0, -1);
+    }
+    if (titleText !== gameTitle) titleText += '…';
+    ctx.fillText(titleText, 50, 92);
+
+    // プレイ時間（右寄り）
+    const ptX = W - 50 - ptAreaW;
+    ctx.font = 'bold 15px "Zen Maru Gothic"';
     ctx.fillStyle = col.gcs;
     ctx.textAlign = 'left';
-    ctx.fillText('♡ プレイ総時間', W * 0.66, 78);
-    ctx.font = '20px "Zen Maru Gothic"';
+    ctx.fillText('♡ プレイ総時間', ptX, 78);
+    ctx.font = '18px "Zen Maru Gothic"';
     ctx.fillStyle = '#3a2f3a';
-    ctx.fillText(playtimeHeader, W * 0.66, 100);
+    ctx.fillText(playtimeHeader, ptX, 98);
   } else {
     ctx.font = 'bold 34px "Zen Maru Gothic"';
     ctx.fillStyle = '#3a2f3a';
