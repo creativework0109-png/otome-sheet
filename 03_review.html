@@ -587,13 +587,16 @@ function generate() {
         // 右側エリアを左右2列に分割：左＝満足度、右＝攻略順
         const rightAreaX = starX;
         const rightAreaW = W - starX - 50;
-        const colMid = rightAreaX + Math.floor(rightAreaW / 2) + 10;
+        const colMid = rightAreaX + Math.floor(rightAreaW / 2);
+
+        // 満足度・攻略順の共通開始Y
+        const sectionStartY = imgY;
 
         // ── 左列：満足度 ──
         const starFont2 = '18px "Zen Maru Gothic"';
         ctx.font = starFont2;
         const labelMaxW2 = ctx.measureText('シナリオ').width + 14;
-        let sy = imgY + 4;
+        let sy = sectionStartY;
         drawSectionLabel(ctx, '満足度', rightAreaX, sy, col.gcs); sy += 28;
         const starKeys = [
           { key:'total', label:'総合' }, { key:'scenario', label:'シナリオ' },
@@ -613,13 +616,13 @@ function generate() {
           sy += 26;
         });
 
-        // ── 右列：攻略順（満足度と同じY位置からスタート） ──
+        // ── 右列：攻略順（満足度と完全に同じY位置からスタート） ──
         const isCharaMode2 = document.getElementById('chara-mode-toggle').checked;
         let routeStr2 = isCharaMode2
           ? charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ')
           : document.getElementById('direct-route').value;
         if (routeStr2) {
-          let ry = imgY + 4;
+          let ry = sectionStartY;
           drawSectionLabel(ctx, '攻略順', colMid, ry, col.gcs); ry += 28;
           ctx.textAlign = 'left';
           ctx.font = '18px "Zen Maru Gothic"';
@@ -630,7 +633,7 @@ function generate() {
           sy = Math.max(sy, ry);
         }
 
-        const afterY = Math.max(imgY + imgSize + 22, sy + 8);
+        const afterY = Math.max(imgY + imgSize + 30, sy + 8);
         drawRestContent(ctx, W, H, col, afterY, true, true);
       };
       imgObj.onerror = () => drawRestContent(ctx, W, H, col, y, false, false);
