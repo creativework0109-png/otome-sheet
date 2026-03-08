@@ -809,11 +809,10 @@ function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false)
   ctx.fillStyle = col.gc;
   ctx.font = '13px "Zen Maru Gothic"';
   const footerText = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
-  ctx.fillText(footerText, W/2, H - 28);
+  ctx.fillText(footerText, W/2, H - 44);
   ctx.font = '11px "Zen Maru Gothic"';
-  ctx.fillStyle = col.gc + 'aa';
-  ctx.textAlign = 'right';
-  ctx.fillText('「otome sheet」designed by @usetoma0403', W - 20, H - 12);
+  ctx.fillStyle = col.gc + 'cc';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W/2, H - 26);
 
   showResult();
 }
@@ -926,11 +925,10 @@ function generate2() {
   ctx.fillStyle = col.gc;
   ctx.font = '13px "Zen Maru Gothic"';
   const footerText2 = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
-  ctx.fillText(footerText2, W/2, H - 28);
+  ctx.fillText(footerText2, W/2, H - 44);
   ctx.font = '11px "Zen Maru Gothic"';
-  ctx.fillStyle = col.gc + 'aa';
-  ctx.textAlign = 'right';
-  ctx.fillText('「otome sheet」designed by @usetoma0403', W - 20, H - 12);
+  ctx.fillStyle = col.gc + 'cc';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W/2, H - 26);
 
   // 2枚目プレビュー表示
   const img2 = document.getElementById('preview-img2');
