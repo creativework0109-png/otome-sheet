@@ -497,40 +497,11 @@ function generateCanvas() {
   ctx.font = 'bold 25px "Zen Maru Gothic"';
   ctx.fillText('♡ 総評シート', W/2, 54);
 
-  // ゲームタイトル（左寄り） ＋ プレイ総時間（右寄り）
-  const playtimeHeader = document.getElementById('playtime').value;
-  if (playtimeHeader) {
-    ctx.font = '16px "Zen Maru Gothic"';
-    const ptLabelW = ctx.measureText('♡ プレイ総時間').width;
-    ctx.font = '18px "Zen Maru Gothic"';
-    const ptValW = ctx.measureText(playtimeHeader).width;
-    const ptAreaW = Math.max(ptLabelW, ptValW) + 20;
-    const titleMaxW = W - 100 - ptAreaW - 20;
-
-    ctx.font = 'bold 30px "Zen Maru Gothic"';
-    ctx.fillStyle = '#3a2f3a';
-    ctx.textAlign = 'left';
-    let titleText = gameTitle;
-    while (ctx.measureText(titleText).width > titleMaxW && titleText.length > 1) {
-      titleText = titleText.slice(0, -1);
-    }
-    if (titleText !== gameTitle) titleText += '…';
-    ctx.fillText(titleText, 50, 95);
-
-    const ptX = W - 50 - ptAreaW;
-    ctx.font = 'bold 15px "Zen Maru Gothic"';
-    ctx.fillStyle = col.gcs;
-    ctx.textAlign = 'left';
-    ctx.fillText('♡ プレイ総時間', ptX, 78);
-    ctx.font = '18px "Zen Maru Gothic"';
-    ctx.fillStyle = '#3a2f3a';
-    ctx.fillText(playtimeHeader, ptX, 98);
-  } else {
-    ctx.font = 'bold 34px "Zen Maru Gothic"';
-    ctx.fillStyle = '#3a2f3a';
-    ctx.textAlign = 'center';
-    ctx.fillText(gameTitle, W/2, 95);
-  }
+  // ゲームタイトル（常に中央配置）
+  ctx.font = 'bold 34px "Zen Maru Gothic"';
+  ctx.fillStyle = '#3a2f3a';
+  ctx.textAlign = 'center';
+  ctx.fillText(gameTitle, W/2, 95);
 
   // ── タイトル下：ドット区切り ──
   ctx.fillStyle = col.gc;
@@ -580,21 +551,24 @@ function generateCanvas() {
         roundRect(ctx, imgX, imgY, imgSize, imgSize, 14); ctx.stroke();
         ctx.setLineDash([]);
 
-        // 右側エリアを左右2列に分割：左＝満足度、右＝攻略順
+        // 右側エリア：満足度 ＋ その右にプレイ総時間
         const rightAreaX = starX;
         const rightAreaW = W - starX - 50;
-        const colMid = rightAreaX + Math.floor(rightAreaW / 2);
 
         // 満足度エリアの高さを計算して画像の縦中央に配置
-        // 見出し(28px) + 5行×26px = 158px
         const blockH = 28 + 5 * 26;
         const headerY = imgY + Math.floor((imgSize - blockH) / 2);
         const dataStartY = headerY + 30;
 
-        // ── 左列：満足度 ──
+        // ── 満足度 ──
         const starFont2 = '18px "Zen Maru Gothic"';
         ctx.font = starFont2;
         const labelMaxW2 = ctx.measureText('シナリオ').width + 14;
+
+        // 満足度の幅を計算
+        ctx.font = starFont2;
+        const starColW = labelMaxW2 + ctx.measureText('★★★★★').width + 10;
+
         drawSectionLabel(ctx, '満足度', rightAreaX, headerY, col.gcs);
         let sy = dataStartY;
         const starKeys = [
@@ -615,24 +589,45 @@ function generateCanvas() {
           sy += 26;
         });
 
-        // ── 右列：攻略順（データ開始Yを満足度と完全に揃える） ──
+        // ── プレイ総時間（満足度の右横・縦中央） ──
+        const playtime2 = document.getElementById('playtime').value;
+        if (playtime2) {
+          const ptX = rightAreaX + starColW + 20;
+          // ラベルと値の幅を計算して中央揃え
+          ctx.font = 'bold 15px "Zen Maru Gothic"';
+          const ptLabelW = ctx.measureText('♡ プレイ総時間').width;
+          ctx.font = '22px "Zen Maru Gothic"';
+          const ptValW = ctx.measureText(playtime2).width;
+          const ptCenterX = ptX + Math.max(ptLabelW, ptValW) / 2;
+          const ptAreaMidY = imgY + imgSize / 2 - 16;
+
+          ctx.textAlign = 'center';
+          ctx.font = 'bold 15px "Zen Maru Gothic"';
+          ctx.fillStyle = col.gcs;
+          ctx.fillText('♡ プレイ総時間', ptCenterX, ptAreaMidY);
+          ctx.font = '22px "Zen Maru Gothic"';
+          ctx.fillStyle = '#3a2f3a';
+          ctx.fillText(playtime2, ptCenterX, ptAreaMidY + 30);
+        }
+
+        // ── 攻略順（画像の下） ──
         const isCharaMode2 = document.getElementById('chara-mode-toggle').checked;
         let routeStr2 = isCharaMode2
           ? charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ')
           : document.getElementById('direct-route').value;
+
+        let afterY = imgY + imgSize + 16;
         if (routeStr2) {
-          drawSectionLabel(ctx, '攻略順', colMid, headerY, col.gcs);
-          let ry = dataStartY;
+          drawSectionLabel(ctx, '攻略順', lx, afterY, col.gcs);
+          afterY += 28;
           ctx.textAlign = 'left';
           ctx.font = '18px "Zen Maru Gothic"';
           ctx.fillStyle = '#4a3f4a';
-          const routeW2 = W - colMid - 50;
-          const routeLines2 = wrapText(ctx, routeStr2, routeW2);
-          routeLines2.forEach(line => { ctx.fillText(line, colMid, ry); ry += 24; });
-          sy = Math.max(sy, ry);
+          const routeLines2 = wrapText(ctx, routeStr2, maxW);
+          routeLines2.forEach(line => { ctx.fillText(line, lx, afterY); afterY += 24; });
+          afterY += 10;
         }
 
-        const afterY = Math.max(imgY + imgSize + 30, sy + 8);
         drawRestContent(ctx, W, H, col, afterY, true, true);
       };
       imgObj.onerror = () => drawRestContent(ctx, W, H, col, y, false, false);
