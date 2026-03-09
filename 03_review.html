@@ -113,7 +113,7 @@ body { padding-bottom: 80px; }
       <input type="text" id="game-title" placeholder="タイトルを入力" maxlength="20" oninput="countChars(this,'cnt-game-title')">
       <div class="char-count"><span id="cnt-game-title">0</span>/20文字</div>
     </div>
-    <label>メイン画像（任意・ゲームや推しの画像など）</label>
+    <label>メイン画像（必須・ゲームや推しの画像など）</label>
     <p style="font-size:0.7rem;color:var(--muted);margin:3px 0 6px;">推奨：正方形（1:1）のJPG/PNG・1MB以下</p>
     <div style="display:flex;align-items:flex-start;gap:12px;margin-top:4px;">
       <div class="upload-area" id="review-upload" style="width:100px;height:100px;border-radius:12px;" onclick="document.getElementById('review-file').click()">
@@ -463,8 +463,8 @@ addCharaEntry();
 function generate() {
   const gameTitle = document.getElementById('game-title').value.trim();
   if (!gameTitle) { alert('ゲームタイトルを入力してください！'); return; }
+  if (!reviewImgData) { alert('メイン画像をアップロードしてください！'); return; }
 
-  // フォント読み込み完了を待ってから描画
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(() => { generateCanvas(); });
   } else {
@@ -626,36 +626,22 @@ function generateCanvas() {
           afterY += 10;
         }
 
-        drawRestContent(ctx, W, H, col, afterY, true, true);
+        drawRestContent(ctx, W, H, col, afterY);
       };
-      imgObj.onerror = () => drawRestContent(ctx, W, H, col, y, false, false);
+      imgObj.onerror = () => { alert('画像の読み込みに失敗しました。'); };
       imgObj.src = reviewImgData;
-      return;
-    }
-    drawRestContent(ctx, W, H, col, y, false);
   };
   drawContent();
 }
 
-function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false) {
+function drawRestContent(ctx, W, H, col, startY) {
   try {
   let y = startY;
   const lx = 50;
   const maxW = W - 100;
 
-  // 攻略順テキストを取得（後で満足度右横に使う）
+  // キャラ感想
   const isCharaMode = document.getElementById('chara-mode-toggle').checked;
-  let routeStr = '';
-  if (isCharaMode) {
-    routeStr = charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ');
-  } else {
-    routeStr = document.getElementById('direct-route').value;
-  }
-
-  // プレイ総時間はヘッダーに表示済み・一番刺さったエンドは満足度下に表示
-  // （skipTimeEnd は後方互換のため引数として残す）
-
-  // キャラ感想（名前＋一言感想を折り返し対応）
   const hasKansou = isCharaMode && charaEntries.some(e => e.name);
   if (hasKansou) {
     drawSectionLabel(ctx, 'キャラ感想', lx, y, col.gcs);
@@ -726,52 +712,7 @@ function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false)
     y += 10;
   }
 
-  // 満足度（画像なし時）＋右横に攻略順
-  if (!skipStars) {
-    const starKeys = [
-      { key:'total', label:'総合' }, { key:'scenario', label:'シナリオ' },
-      { key:'sugar', label:'糖度' }, { key:'system', label:'システム' }, { key:'bgm', label:'BGM' },
-    ];
-    const starFont = '20px "Zen Maru Gothic"';
-    // ラベル幅を実測：「シナリオ」が最長なので事前計測
-    ctx.font = starFont;
-    const labelMaxW = ctx.measureText('シナリオ').width + 16;
-    const starBlockX = lx;
-    const starBlockW = labelMaxW + 5 * 24 + 30;
-    drawSectionLabel(ctx, '満足度', starBlockX, y, col.gcs);
-    let sy = y + 28;
-    starKeys.forEach(sk => {
-      ctx.textAlign = 'left';
-      ctx.font = starFont;
-      ctx.fillStyle = '#8a7a8a';
-      ctx.fillText(sk.label, starBlockX, sy);
-      const filled = '★'.repeat(starRatings[sk.key]);
-      const empty = '☆'.repeat(5 - starRatings[sk.key]);
-      ctx.fillStyle = '#f7c948';
-      ctx.fillText(filled, starBlockX + labelMaxW, sy);
-      ctx.fillStyle = '#d0c0d0';
-      ctx.fillText(empty, starBlockX + labelMaxW + ctx.measureText(filled).width, sy);
-      sy += 30;
-    });
-
-    // 攻略順（右側）
-    if (routeStr) {
-      const routeX = lx + starBlockW + 20;
-      const routeW = W - routeX - 50;
-      drawSectionLabel(ctx, '攻略順', routeX, y, col.gcs);
-      let ry = y + 28;
-      ctx.textAlign = 'left';
-      ctx.font = '20px "Zen Maru Gothic"';
-      ctx.fillStyle = '#4a3f4a';
-      const routeLines = wrapText(ctx, routeStr, routeW);
-      routeLines.forEach(line => { ctx.fillText(line, routeX, ry); ry += 26; });
-      sy = Math.max(sy, ry);
-    }
-
-    y = sy + 12;
-  }
-
-  // 一番刺さったエンド（画像あり・なし両方で表示）
+  // 一番刺さったエンド
   const bestEndBelow = document.getElementById('best-end').value;
   if (bestEndBelow) {
     y = drawBlock(ctx, '一番刺さったエンド', bestEndBelow, lx, y, maxW, col, false);
