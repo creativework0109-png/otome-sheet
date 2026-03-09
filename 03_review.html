@@ -461,9 +461,15 @@ addCharaEntry();
 
 // ─── 画像生成 ───
 function generate() {
-  // 必須チェック
   const gameTitle = document.getElementById('game-title').value.trim();
   if (!gameTitle) { alert('ゲームタイトルを入力してください！'); return; }
+
+  // フォント読み込み完了を待ってから描画
+  document.fonts.ready.then(() => { generateCanvas(); });
+}
+
+function generateCanvas() {
+  const gameTitle = document.getElementById('game-title').value.trim();
 
   const oldCanvas = document.getElementById('preview-canvas');
   const newCanvas = document.createElement('canvas');
