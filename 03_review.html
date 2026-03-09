@@ -105,7 +105,7 @@ body { padding-bottom: 80px; }
     <p>ゲーム全体の感想をまとめよう！</p>
   </div>
 
-  <!-- ゲームタイトル -->
+  <!-- 基本情報（ゲームタイトル＋メイン画像） -->
   <div class="card">
     <div class="card-title">♡ 基本情報</div>
     <div style="margin-bottom:12px;">
@@ -125,54 +125,23 @@ body { padding-bottom: 80px; }
     </div>
   </div>
 
-  <!-- カラー選択 -->
+  <!-- カラーテーマ -->
   <div class="card">
     <div class="card-title">♡ カラーテーマ</div>
     <div class="color-palette" id="color-palette" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
   </div>
 
-  <!-- キャラ感想セクション -->
+  <!-- 満足度 -->
   <div class="card">
-    <div class="card-title">
-      ♡ キャラ感想
-      <span class="optional-badge">任意・MAX7</span>
-    </div>
-    <div class="route-toggle-wrap">
-      <span class="route-toggle-label">キャラ感想を入力して攻略順に自動反映する</span>
-      <label class="toggle">
-        <input type="checkbox" id="chara-mode-toggle" onchange="toggleCharaMode(this.checked)" checked>
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-    </div>
-
-    <!-- キャラ感想入力モード -->
-    <div id="chara-entries-wrap">
-      <div id="chara-entries"></div>
-      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:6px;" onclick="addCharaEntry()">＋ キャラを追加</button>
-    </div>
-
-    <!-- 直接入力モード -->
-    <div id="direct-route-wrap" style="display:none;">
-      <label>攻略順（例：A→B→C）</label>
-      <input type="text" id="direct-route" placeholder="名前を入力してください">
-    </div>
-
-    <!-- 攻略順プレビュー -->
-    <div style="margin-top:10px;">
-      <label>攻略順（自動生成）</label>
-      <div class="route-display" id="route-display">—</div>
-    </div>
+    <div class="card-title">♡ 満足度</div>
+    <div class="star-row"><span class="star-label">総合</span><div class="stars" id="stars-total"></div></div>
+    <div class="star-row"><span class="star-label">シナリオ</span><div class="stars" id="stars-scenario"></div></div>
+    <div class="star-row"><span class="star-label">糖度</span><div class="stars" id="stars-sugar"></div></div>
+    <div class="star-row"><span class="star-label">システム</span><div class="stars" id="stars-system"></div></div>
+    <div class="star-row" style="margin-bottom:0"><span class="star-label">BGM</span><div class="stars" id="stars-bgm"></div></div>
   </div>
 
-  <!-- 主人公 -->
-  <div class="card">
-    <div class="card-title">♡ 主人公について<span class="optional-badge">任意</span></div>
-    <textarea id="heroine" rows="2" maxlength="80" placeholder="主人公についての感想…" oninput="countChars(this,'cnt-heroine')"></textarea>
-    <div class="char-count"><span id="cnt-heroine">0</span>/80文字</div>
-  </div>
-
-  <!-- プレイ時間 ＋ 一番刺さったエンド（横並び） -->
+  <!-- プレイ総時間 ＋ 一番刺さったエンド -->
   <div class="card">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
       <div>
@@ -193,6 +162,34 @@ body { padding-bottom: 80px; }
     </div>
   </div>
 
+  <!-- キャラ感想（攻略順） -->
+  <div class="card">
+    <div class="card-title">
+      ♡ キャラ感想
+      <span class="optional-badge">任意・MAX7</span>
+    </div>
+    <div class="route-toggle-wrap">
+      <span class="route-toggle-label">キャラ感想を入力して攻略順に自動反映する</span>
+      <label class="toggle">
+        <input type="checkbox" id="chara-mode-toggle" onchange="toggleCharaMode(this.checked)" checked>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+    </div>
+    <div id="chara-entries-wrap">
+      <div id="chara-entries"></div>
+      <button class="btn btn-outline btn-sm" style="width:100%;margin-top:6px;" onclick="addCharaEntry()">＋ キャラを追加</button>
+    </div>
+    <div id="direct-route-wrap" style="display:none;">
+      <label>攻略順（例：A→B→C）</label>
+      <input type="text" id="direct-route" placeholder="名前を入力してください">
+    </div>
+    <div style="margin-top:10px;">
+      <label>攻略順（自動生成）</label>
+      <div class="route-display" id="route-display">—</div>
+    </div>
+  </div>
+
   <!-- 良かったところ -->
   <div class="card">
     <div class="card-title">♡ 良かったところ<span class="optional-badge">任意・MAX3</span></div>
@@ -207,17 +204,7 @@ body { padding-bottom: 80px; }
     <button class="btn btn-outline btn-sm" id="split-add-btn" style="width:100%;margin-top:6px;" onclick="addPoint('split')">＋ 追加</button>
   </div>
 
-  <!-- 満足度 -->
-  <div class="card">
-    <div class="card-title">♡ 満足度</div>
-    <div class="star-row"><span class="star-label">総合</span><div class="stars" id="stars-total"></div></div>
-    <div class="star-row"><span class="star-label">シナリオ</span><div class="stars" id="stars-scenario"></div></div>
-    <div class="star-row"><span class="star-label">糖度</span><div class="stars" id="stars-sugar"></div></div>
-    <div class="star-row"><span class="star-label">システム</span><div class="stars" id="stars-system"></div></div>
-    <div class="star-row" style="margin-bottom:0"><span class="star-label">BGM</span><div class="stars" id="stars-bgm"></div></div>
-  </div>
-
-  <!-- 最推し -->
+  <!-- 最終的な最推し -->
   <div class="card">
     <div class="card-title">♡ 最終的な最推し</div>
     <input type="text" id="best-chara" placeholder="最推しキャラ名" maxlength="30" oninput="countChars(this,'cnt-best-chara')">
@@ -231,7 +218,7 @@ body { padding-bottom: 80px; }
     <div class="char-count"><span id="cnt-free-review">0</span>/500文字</div>
   </div>
 
-  <!-- サイン入力 -->
+  <!-- サイン -->
   <div class="card">
     <div class="card-title">♡ サイン<span class="optional-badge">任意</span></div>
     <input type="text" id="user-sign" placeholder="@あなたのXアカウント名など" maxlength="30" oninput="countChars(this,'cnt-user-sign')">
