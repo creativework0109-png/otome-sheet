@@ -113,7 +113,7 @@ body { padding-bottom: 80px; }
       <input type="text" id="game-title" placeholder="タイトルを入力" maxlength="20" oninput="countChars(this,'cnt-game-title')">
       <div class="char-count"><span id="cnt-game-title">0</span>/20文字</div>
     </div>
-    <label>メイン画像（※必須・推しの画像やアイコンなどに）</label>
+    <label>メイン画像（※必須・推しの画像やアイコンなど）</label>
     <p style="font-size:0.7rem;color:var(--muted);margin:3px 0 6px;">推奨：正方形（1:1）のJPG/PNG・1MB以下</p>
     <div style="display:flex;align-items:flex-start;gap:12px;margin-top:4px;">
       <div class="upload-area" id="review-upload" style="width:100px;height:100px;border-radius:12px;" onclick="document.getElementById('review-file').click()">
@@ -212,8 +212,8 @@ body { padding-bottom: 80px; }
   <!-- 感想（2枚目用） -->
   <div class="card">
     <div class="card-title">♡ 感想（自由記述）<span class="optional-badge">任意・2枚目に使用</span></div>
-    <textarea id="free-review" rows="6" maxlength="500" placeholder="ゲーム全体の感想を自由に…（2枚目の語り場シートに入ります）" oninput="countChars(this,'cnt-free-review')"></textarea>
-    <div class="char-count"><span id="cnt-free-review">0</span>/500文字</div>
+    <textarea id="free-review" rows="6" maxlength="750" placeholder="ゲーム全体の感想を自由に…（2枚目の感想シートに入ります）" oninput="countChars(this,'cnt-free-review')"></textarea>
+    <div class="char-count"><span id="cnt-free-review">0</span>/750文字</div>
   </div>
 
   <!-- サイン -->
@@ -814,7 +814,7 @@ function generate2() {
   ctx.textAlign = 'center';
   ctx.fillStyle = col.gcs;
   ctx.font = 'bold 25px "Zen Maru Gothic"';
-  ctx.fillText('♡ 語り場シート', W/2, 54);
+  ctx.fillText('♡ 感想シート', W/2, 54);
 
   ctx.font = 'bold 32px "Zen Maru Gothic"';
   ctx.fillStyle = '#3a2f3a';
@@ -847,10 +847,10 @@ function generate2() {
     drawSectionLabel(ctx, '感想', lx, y, col.gcs);
     y += 28;
     ctx.textAlign = 'left';
-    ctx.font = '20px "Zen Maru Gothic"';
+    ctx.font = '23px "Zen Maru Gothic"';
     ctx.fillStyle = '#4a3f4a';
     const lines = wrapText(ctx, freeReview, maxW);
-    lines.forEach(line => { ctx.fillText(line, lx, y); y += 28; });
+    lines.forEach(line => { ctx.fillText(line, lx, y); y += 30; });
   } else {
     // 感想未記入時のメッセージ
     ctx.textAlign = 'center';
