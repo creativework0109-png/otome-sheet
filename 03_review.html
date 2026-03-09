@@ -475,18 +475,10 @@ function generate() {
 function generateCanvas() {
   const gameTitle = document.getElementById('game-title').value.trim();
 
-  const oldCanvas = document.getElementById('preview-canvas');
-  const newCanvas = document.createElement('canvas');
-  newCanvas.id = 'preview-canvas';
-  newCanvas.width = 900;
-  newCanvas.height = 1200;
-  newCanvas.style.display = 'none';
-  if (oldCanvas) {
-    oldCanvas.parentNode.replaceChild(newCanvas, oldCanvas);
-  } else {
-    document.body.appendChild(newCanvas);
-  }
-  const ctx = newCanvas.getContext('2d', { willReadFrequently: true });
+  const canvas = document.getElementById('preview-canvas');
+  canvas.width = 900;
+  canvas.height = 1200;
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
   const W = 900, H = 1200;
   const col = selectedColor;
 
