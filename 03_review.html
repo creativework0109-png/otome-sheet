@@ -538,18 +538,21 @@ function generateCanvas() {
     ctx.beginPath(); ctx.arc(x, 108, 2, 0, Math.PI * 2); ctx.fill();
   }
 
-  // ── サイン帯（ドットのすぐ下）──
+  // ── サイン帯（ドットのすぐ下・2行）──
   const userSignHeader = document.getElementById('user-sign').value.trim();
   ctx.fillStyle = col.gc + '30';
-  ctx.fillRect(50, 114, W - 100, 30);
+  ctx.fillRect(50, 114, W - 100, 44);
   ctx.textAlign = 'center';
   ctx.font = '13px "Zen Maru Gothic"';
   ctx.fillStyle = col.gcs;
   const signText = userSignHeader ? `♡ otome sheet ♡　／　${userSignHeader}` : '♡ otome sheet ♡';
-  ctx.fillText(signText, W / 2, 134);
+  ctx.fillText(signText, W / 2, 132);
+  ctx.font = '11px "Zen Maru Gothic"';
+  ctx.fillStyle = col.gcs + 'bb';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W / 2, 150);
 
   const drawContent = () => {
-    let y = 158;
+    let y = 172;
     const lx = 50;
     const maxW = W - 100;
 
@@ -798,12 +801,6 @@ function drawRestContent(ctx, W, H, col, startY, skipStars, skipTimeEnd = false)
     y += 64;
   }
 
-  // フッター（クレジットのみ・サインはタイトル下のサイン帯に表示済み）
-  ctx.textAlign = 'center';
-  ctx.font = '12px "Zen Maru Gothic"';
-  ctx.fillStyle = col.gcs + 'aa';
-  ctx.fillText('「otome sheet」designed by @usetoma0403', W/2, H - 26);
-
   showResult();
   } catch(e) {
     console.error('drawRestContent error:', e);
@@ -878,8 +875,6 @@ function generate2() {
   for (let x = 0; x <= W; x += 30) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
   for (let y2 = 0; y2 <= H; y2 += 30) { ctx.beginPath(); ctx.moveTo(0,y2); ctx.lineTo(W,y2); ctx.stroke(); }
 
-  drawDashRect(ctx, 16, 16, W-32, H-32, col.gcs, 3, 10);
-
   // ヘッダー
   ctx.textAlign = 'center';
   ctx.fillStyle = col.gcs;
@@ -890,13 +885,26 @@ function generate2() {
   ctx.fillStyle = '#3a2f3a';
   ctx.fillText(gameTitle, W/2, 92);
 
-  ctx.strokeStyle = col.gc; ctx.lineWidth = 1.5;
-  ctx.setLineDash([6,4]);
-  ctx.beginPath(); ctx.moveTo(50, 108); ctx.lineTo(W-50, 108); ctx.stroke();
-  ctx.setLineDash([]);
+  // ドット区切り
+  ctx.fillStyle = col.gc;
+  for (let x = 50; x < W - 50; x += 9) {
+    ctx.beginPath(); ctx.arc(x, 108, 2, 0, Math.PI * 2); ctx.fill();
+  }
+
+  // サイン帯（2行）
+  ctx.fillStyle = col.gc + '30';
+  ctx.fillRect(50, 114, W - 100, 44);
+  ctx.textAlign = 'center';
+  ctx.font = '13px "Zen Maru Gothic"';
+  ctx.fillStyle = col.gcs;
+  const signText2 = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
+  ctx.fillText(signText2, W / 2, 132);
+  ctx.font = '11px "Zen Maru Gothic"';
+  ctx.fillStyle = col.gcs + 'bb';
+  ctx.fillText('「otome sheet」designed by @usetoma0403', W / 2, 150);
 
   // 感想本文
-  let y = 140;
+  let y = 186;
   const lx = 50;
   const maxW = W - 100;
 
@@ -915,16 +923,6 @@ function generate2() {
     ctx.font = '18px "Zen Maru Gothic"';
     ctx.fillText('～ここに語りを書いてね～', W/2, H/2);
   }
-
-  // フッター
-  ctx.textAlign = 'center';
-  ctx.fillStyle = col.gc;
-  ctx.font = '13px "Zen Maru Gothic"';
-  const footerText2 = userSign ? `♡ otome sheet ♡　／　${userSign}` : '♡ otome sheet ♡';
-  ctx.fillText(footerText2, W/2, H - 44);
-  ctx.font = '12px "Zen Maru Gothic"';
-  ctx.fillStyle = col.gcs;
-  ctx.fillText('「otome sheet」designed by @usetoma0403', W/2, H - 26);
 
   // 2枚目プレビュー表示
   const img2 = document.getElementById('preview-img2');
