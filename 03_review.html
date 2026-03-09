@@ -205,8 +205,8 @@ body { padding-bottom: 80px; }
   <!-- 最終的な最推し -->
   <div class="card">
     <div class="card-title">♡ 最終的な最推し</div>
-    <input type="text" id="best-chara" placeholder="最推しキャラ名" maxlength="30" oninput="countChars(this,'cnt-best-chara')">
-    <div class="char-count"><span id="cnt-best-chara">0</span>/30文字</div>
+    <input type="text" id="best-chara" placeholder="最推しキャラ名" maxlength="10" oninput="countChars(this,'cnt-best-chara')">
+    <div class="char-count"><span id="cnt-best-chara">0</span>/10文字</div>
   </div>
 
   <!-- 感想（2枚目用） -->
@@ -219,15 +219,15 @@ body { padding-bottom: 80px; }
   <!-- サイン -->
   <div class="card">
     <div class="card-title">♡ サイン<span class="optional-badge">任意</span></div>
-    <input type="text" id="user-sign" placeholder="@あなたのXアカウント名など" maxlength="30" oninput="countChars(this,'cnt-user-sign')">
-    <div class="char-count"><span id="cnt-user-sign">0</span>/30文字</div>
+    <input type="text" id="user-sign" placeholder="@あなたのXアカウント名など" maxlength="20" oninput="countChars(this,'cnt-user-sign')">
+    <div class="char-count"><span id="cnt-user-sign">0</span>/20文字</div>
     <div style="font-size:0.7rem;color:var(--muted);margin-top:4px;">入力すると両方の画像のフッターに表示されます</div>
   </div>
 
   <!-- 生成ボタン -->
   <div style="margin-top:20px;">
     <button class="btn btn-primary" style="width:100%;padding:16px;font-size:1rem;" onclick="generate()">
-      ✨ シートを作成する
+      総評シートを作成する♡
     </button>
   </div>
 
