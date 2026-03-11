@@ -181,6 +181,13 @@ body { padding-bottom: 80px; }
     </div>
   </div>
 
+  <!-- ヒロインについて -->
+  <div class="card">
+    <div class="card-title">♡ ヒロインについて<span class="optional-badge">任意</span></div>
+    <textarea id="heroine" rows="2" maxlength="80" placeholder="ヒロインについての感想…" oninput="countChars(this,'cnt-heroine')"></textarea>
+    <div class="char-count"><span id="cnt-heroine">0</span>/80文字</div>
+  </div>
+
   <!-- 良かったところ -->
   <div class="card">
     <div class="card-title">♡ 良かったところ<span class="optional-badge">任意・MAX3</span></div>
@@ -677,7 +684,12 @@ function drawRestContent(ctx, W, H, col, startY) {
     y += 10;
   }
 
-  // 主人公（設問削除済みのためスキップ）
+  // ヒロインについて
+  const heroine = document.getElementById('heroine').value;
+  if (heroine) {
+    y = drawBlock(ctx, 'ヒロインについて', heroine, lx, y, maxW, col, false);
+    y += 14;
+  }
 
   // 良かったところ
   const goods = pointData.good.filter(v => v.trim());
