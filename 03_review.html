@@ -153,31 +153,24 @@ body { padding-bottom: 80px; }
     </select>
   </div>
 
-  <!-- キャラ感想（攻略順） -->
+  <!-- 攻略順 -->
+  <div class="card">
+    <div class="card-title">♡ 攻略順<span class="optional-badge">任意</span></div>
+    <input type="text" id="direct-route" placeholder="例：Aルート → Bルート → Cルート" oninput="updateRouteDisplay()">
+    <div style="margin-top:8px;">
+      <div class="route-display" id="route-display">—</div>
+    </div>
+  </div>
+
+  <!-- キャラ感想 -->
   <div class="card">
     <div class="card-title">
       ♡ キャラ感想
       <span class="optional-badge">任意・MAX7</span>
     </div>
-    <div class="route-toggle-wrap">
-      <span class="route-toggle-label">キャラ感想を入力して攻略順に自動反映する</span>
-      <label class="toggle">
-        <input type="checkbox" id="chara-mode-toggle" onchange="toggleCharaMode(this.checked)" checked>
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-    </div>
     <div id="chara-entries-wrap">
       <div id="chara-entries"></div>
       <button class="btn btn-outline btn-sm" style="width:100%;margin-top:6px;" onclick="addCharaEntry()">＋ キャラを追加</button>
-    </div>
-    <div id="direct-route-wrap" style="display:none;">
-      <label>攻略順（例：A→B→C）</label>
-      <input type="text" id="direct-route" placeholder="名前を入力してください">
-    </div>
-    <div style="margin-top:10px;">
-      <label>攻略順（自動生成）</label>
-      <div class="route-display" id="route-display">—</div>
     </div>
   </div>
 
@@ -394,13 +387,6 @@ function highlightStars(key, val) {
   });
 }
 
-// キャラモードトグル
-function toggleCharaMode(on) {
-  document.getElementById('chara-entries-wrap').style.display = on ? 'block' : 'none';
-  document.getElementById('direct-route-wrap').style.display = on ? 'none' : 'block';
-  updateRouteDisplay();
-}
-
 // キャラエントリ追加
 function addCharaEntry() {
   if (charaEntries.length >= 7) { alert('キャラは最大7名までです！'); return; }
@@ -452,14 +438,8 @@ function updateEntry(id, key, val) {
 
 function updateRouteDisplay() {
   const el = document.getElementById('route-display');
-  const isCharaMode = document.getElementById('chara-mode-toggle').checked;
-  if (isCharaMode) {
-    const names = charaEntries.map(e => e.name).filter(n => n.trim());
-    el.textContent = names.length > 0 ? names.join(' → ') : '—';
-  } else {
-    const v = document.getElementById('direct-route').value;
-    el.textContent = v || '—';
-  }
+  const v = document.getElementById('direct-route').value;
+  el.textContent = v || '—';
 }
 
 document.getElementById('direct-route').addEventListener('input', updateRouteDisplay);
@@ -617,10 +597,7 @@ function generateCanvas() {
         }
 
         // ── 攻略順（画像の下・余白25px） ──
-        const isCharaMode2 = document.getElementById('chara-mode-toggle').checked;
-        let routeStr2 = isCharaMode2
-          ? charaEntries.map(e => e.name).filter(n => n.trim()).join(' → ')
-          : document.getElementById('direct-route').value;
+        const routeStr2 = document.getElementById('direct-route').value;
 
         let afterY = imgY + imgSize + 25;
         if (routeStr2) {
@@ -650,8 +627,8 @@ function drawRestContent(ctx, W, H, col, startY) {
   const maxW = W - 100;
 
   // キャラ感想
-  const isCharaMode = document.getElementById('chara-mode-toggle').checked;
-  const hasKansou = isCharaMode && charaEntries.some(e => e.name);
+  const isCharaMode = true;
+  const hasKansou = charaEntries.some(e => e.name);
   if (hasKansou) {
     drawSectionLabel(ctx, 'キャラ感想', lx, y, col.gcs);
     y += 28;
