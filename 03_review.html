@@ -760,6 +760,7 @@ function drawRestContent(ctx, W, H, col, startY) {
     ctx.font = '18px "Zen Maru Gothic"';
     ctx.fillStyle = '#4a3f4a';
     const bestEndLines = wrapText(ctx, bestEndBelow, maxW);
+    bestEndLines.forEach(line => { ctx.fillText(line, lx, y); y += 24; });
     y += 8;
   }
 
