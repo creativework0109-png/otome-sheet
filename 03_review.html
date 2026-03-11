@@ -247,10 +247,10 @@ body { padding-bottom: 80px; }
 
   <!-- 2枚目プレビュー -->
   <div id="preview-wrap2" style="display:none;margin-top:16px;">
-    <div style="font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:6px;">② 語り場シート</div>
+    <div style="font-size:0.8rem;color:var(--muted);text-align:center;margin-bottom:6px;">② 感想シート</div>
     <img id="preview-img2" class="preview-img">
     <div class="dl-btn-wrap">
-      <button class="btn btn-primary" style="width:100%;" onclick="download(2)">⬇️ 2枚目をダウンロード（語り場シート）</button>
+      <button class="btn btn-primary" style="width:100%;" onclick="download(2)">⬇️ 2枚目をダウンロード（感想シート）</button>
     </div>
   </div>
 
@@ -458,12 +458,15 @@ function renderRouteEntries() {
   wrap.innerHTML = '';
   routeEntries.forEach((e) => {
     const div = document.createElement('div');
-    div.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:8px;';
+    div.style.cssText = 'margin-bottom:8px;';
     div.innerHTML = `
-      <input type="text" value="${e.name}" placeholder="キャラ名" maxlength="10"
-        oninput="updateRouteEntry(${e.id}, this.value)"
-        style="flex:1;">
-      <button class="btn btn-outline btn-sm" style="flex-shrink:0;" onclick="removeRouteEntry(${e.id})">✕</button>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="text" value="${e.name}" placeholder="キャラ名" maxlength="10"
+          oninput="updateRouteEntry(${e.id}, this.value); document.getElementById('cnt-route-${e.id}').textContent=this.value.length"
+          style="flex:1;">
+        <button class="btn btn-outline btn-sm" style="flex-shrink:0;" onclick="removeRouteEntry(${e.id})">✕</button>
+      </div>
+      <div class="char-count"><span id="cnt-route-${e.id}">${e.name.length}</span>/10文字</div>
     `;
     wrap.appendChild(div);
   });
@@ -917,7 +920,7 @@ function download(num) {
   const title = document.getElementById('game-title').value || 'review';
   const d = new Date();
   const dateStr = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const suffix = num === 2 ? '_語り場' : '';
+  const suffix = num === 2 ? '_感想' : '';
   a.download = `otome_review_${title}${suffix}_${dateStr}.png`;
   a.href = canvas.toDataURL('image/png');
   a.click();
